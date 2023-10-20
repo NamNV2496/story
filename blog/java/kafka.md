@@ -124,72 +124,6 @@ public class KafkaConfig {
 kafkaConfig.getProducer().getProperties().getTopics().getTestTopic();
 ```
 
-
-```java
-=============================== way 2 ===============================
-@Configuration
-class KafkaConsumerConfig {
-
-    @Value("localhost:9092")
-    private String bootstrapServers;
-
-// consume message là string (key: string, value: string)
-    @Bean
-    public Map<String, String> consumerStringConfigs() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "group-id");
-        // this is config to parse data from kafka is String
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        // end
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
-        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-
-        return new DefaultKafkaConsumerFactory<>(props);
-    }
-
-    @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> StringkafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerStringConfigs());
-        return factory;
-    }
-
-// consume message là json (key: string, value: json)
-    @Bean
-    public ConsumerFactory<String, User> consumerJsonFactory() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        // this is config to parse data from kafka is json but key is string
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        // end
-        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class);
-
-        // set default type is object in json
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, User.class);
-        // end
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        
-        return new DefaultKafkaConsumerFactory<>(props);
-    }
-
-    @Bean
-    KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, User>> jsonKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, User> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerJsonFactory());
-        return factory;
-    }
-
-}
-
-```
 ## Mặc định sẽ lắng nghe về dạng string, nhưng để config lắng nghe về dạng json
 
 ```java
@@ -260,6 +194,78 @@ class KafkaProducerConfig {
 
 ```
 
+
+# Config consumer
+
+
+```java
+@Configuration
+class KafkaConsumerConfig {
+
+    @Value("localhost:9092")
+    private String bootstrapServers;
+
+// consume message là string (key: string, value: string)
+    @Bean
+    public Map<String, String> consumerStringConfigs() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "group-id");
+        // this is config to parse data from kafka is String
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        // end
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        props.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "100");
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "15000");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, String>> StringkafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerStringConfigs());
+        return factory;
+    }
+
+// consume message là json (key: string, value: json)
+    @Bean
+    public ConsumerFactory<String, User> consumerJsonFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        // this is config to parse data from kafka is json but key is string
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        // end
+        props.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class);
+
+        // set default type is object in json
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, User.class);
+        // end
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    @Bean
+    KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, User>> jsonKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, User> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerJsonFactory());
+        return factory;
+    }
+
+}
+```
+
+
+## @KafkaListener
+
+
 config to read in special partition of topic
 ```java
 application.yml
@@ -320,7 +326,6 @@ groupid.consumer: UATgroupId
     }
 ```
 
-## @KafkaListener
 
 - use `@RetryableTopic` to setup retry times
 

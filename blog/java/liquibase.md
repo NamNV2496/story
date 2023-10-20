@@ -54,6 +54,11 @@ Và cần tắt entity auto generate table tự động của hibernate
 jpa:
     hibernate:
         ddl-auto: none
+
+// it will help to terminate service after successfully
+spring:
+    main:
+        web-application-type: none
 ```
 change-log file trỏ đến file **changelog-master** là file tổng hợp các changeSet để chạy.
 
