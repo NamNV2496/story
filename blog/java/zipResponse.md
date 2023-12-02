@@ -16,6 +16,37 @@
 
 - Add httpHeader to return context-type `application/octet-stream`
 
+
+```java
+@GetMapping("/download-json-list-zip")
+    public ResponseEntity<byte[]> downloadJsonListZip() throws IOException {
+        // Create a list of objects (for example, strings)
+        List<String> dataList = Arrays.asList("Item 1", "Item 2", "Item 3");
+
+        // Convert the list to JSON
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonData = objectMapper.writeValueAsString(dataList);
+
+        // Create a ByteArrayOutputStream to hold the zip content
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+            // Add a JSON file to the zip
+            ZipEntry entry = new ZipEntry("data.json");
+            zos.putNextEntry(entry);
+            zos.write(jsonData.getBytes());
+            zos.closeEntry();
+        }
+
+        // Set up HTTP headers then browser will download automatically
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "data.zip");
+
+        // Return the zip file as a byte array in the response body
+        return new ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
+    }
+```
+
 <img src="blog/java/img/zipResponse1.png" style="display: block; margin-right: auto; margin-left: auto;">
 
 
@@ -39,8 +70,44 @@
 
 - Add httpHeader to return context-type `application/octet-stream`
 
-<img src="blog/java/img/zipResponse2.png" style="display: block; margin-right: auto; margin-left: auto;">
 
+```java
+    @GetMapping("/zipJson")
+    public ResponseEntity<byte[]> zipJsonFile() throws IOException {
+
+        // Read JSON file from resources
+        ClassPathResource jsonResource = new ClassPathResource("large-file.json");
+
+//        String zipFilePath = "path/to/your/destination/file.zip";
+//        FileOutputStream fos = new FileOutputStream(zipFilePath);
+//        ZipOutputStream zipOut = new ZipOutputStream(fos);
+
+        InputStream jsonStream = jsonResource.getInputStream();
+        byte[] jsonData = jsonStream.readAllBytes();
+
+        // Create a ByteArrayOutputStream to hold the zipped content
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zipOut = new ZipOutputStream(baos)) {
+            // Add JSON file to the zip
+            ZipEntry entry = new ZipEntry("data.json");
+            zipOut.putNextEntry(entry);
+            zipOut.write(jsonData);
+            zipOut.closeEntry();
+        }
+
+        // Set up response headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "data.zip");
+
+        // Return the zipped content as a byte array
+        return ResponseEntity.ok()
+            .headers(headers)
+            .body(baos.toByteArray());
+    }
+```
+
+<img src="blog/java/img/zipResponse2.png" style="display: block; margin-right: auto; margin-left: auto;">
 
 
 ## Access in browser
