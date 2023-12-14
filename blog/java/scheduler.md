@@ -43,5 +43,41 @@ public void scheduleTaskWithCronExpression() {
 Reverse, if havingValue is **true** the pass conditional is _com.scheduling.enabled: true_,
 false case is _com.scheduling.enabled: false_
 
+# Config to read cron job in database
+
+```java
+@Configuration
+public class SchedulerConfig {
+    @Autowired
+    private JobRepository cronRepo;
+
+    @Bean
+    public List<Job> getCronValue()
+    {
+        return cronRepo.findAll();
+    }
+    @Bean
+    public String getCronValueFirst() {
+//        return "0/5 * * ? * *";
+        System.out.println("ars: " + cronRepo.findById(1L).get().getCron());
+        return cronRepo.findById(1L).get().getCron();
+    }
+}
+```
+
+Use # to refer to method in Bean `@Scheduler(cron = "#{getCronValueFirst}")` 
+
+```java
+@Scheduled(cron = "#{getCronValueFirst}")
+public void cronMethod() {
+    System.out.println("cron : " + count++ + "  time: " + LocalTime.now());
+}
+```
+
+# config to delay
+
+The API return immediatly but API run in background
+
+<img src="blog/java/img/scheduling.png" style="display: block; margin-right: auto; margin-left: auto;">
 
 
