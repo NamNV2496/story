@@ -27,9 +27,6 @@ public void scheduleTaskWithCronExpression() {
 }
 ```
 
-
-
-
 ## Go to FixDelayService.java file to enable scheduler which you want
 
 @ConditionalOnProperty is an annotation to enable/disable the scheduler
