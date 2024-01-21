@@ -34,9 +34,9 @@ Nguồn: Cuộc hội thoại với Bing, 30/5/2023
 
 
 
-<img src="blog/java/img/redis1.png" style="display: block; margin-right: auto; margin-left: auto;">
+<img src="blog/java/img/redis1.jpg" style="display: block; margin-right: auto; margin-left: auto;">
 
-<img src="blog/java/img/redis2.png" style="display: block; margin-right: auto; margin-left: auto;">
+<img src="blog/java/img/redis2.jpg" style="display: block; margin-right: auto; margin-left: auto;">
 
 ## what is maximum size of redis
 The maximum size of a Redis string is 512MB¹. Redis can handle up to 2^32 keys, and was tested in practice to handle at least 250 million keys per instance. Every hash, list, set, and sorted set can hold 2^32 elements³.
